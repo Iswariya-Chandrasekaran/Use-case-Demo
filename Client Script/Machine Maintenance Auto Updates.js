@@ -11,6 +11,7 @@ frappe.ui.form.on("Machine Maintenance", {
 
     // Triggered when the form is refreshed
     refresh: function(frm) {
+        update_overdue(frm);
         const user_is_technician = frappe.user_roles.includes("Technician");
         const maintenance_completed = frm.doc.workflow_state === "Completed";
 
@@ -48,6 +49,9 @@ frappe.ui.form.on("Machine Maintenance", {
             frm.set_value("completion_date", frappe.datetime.nowdate());
             frm.save();
         }
+    },
+    maintenance_date: function(frm) {
+       update_overdue(frm);
     },
 
     // Child table triggers: when a new part row is added or removed
@@ -103,6 +107,24 @@ function fetch_part_price(frm, cdt, cdn) {
             calculate_row_amount(frm, cdt, cdn);
         }
     });
+}
+function update_overdue(frm) {
+    if (!frm.doc.maintenance_date || frm.doc.status === "Completed") return;
+
+    let diff = frappe.datetime.get_diff(frappe.datetime.get_today(), frm.doc.maintenance_date);
+    // If maintenance date is in the past - Overdue
+    if (diff > 0) {
+        if (frm.doc.status !== "Overdue") {
+            frm.set_value("status", "Overdue");
+        }
+        
+    }
+    // If date is today or future - Reset to Draft
+    else {
+        if (frm.doc.status === "Overdue") {
+            frm.set_value("status", "Draft");  //  
+        }
+    }
 }
 
 // Helper function: Calculate amount for a single part row
