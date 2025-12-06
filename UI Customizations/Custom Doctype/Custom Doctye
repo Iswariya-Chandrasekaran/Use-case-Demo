@@ -1,0 +1,17 @@
+Custom DocType & Fields
+
+Create a new DocType: Machine Maintenance
+
+Fields:
+Machine Name (Link, Item)
+Maintenance Date (Date)
+Maintenance Type (Select: Preventive, Corrective)
+Completion Date (Date)
+Technician (Link, Employee)
+Status (Select: Scheduled, Completed, Overdue)
+Cost (Currency)
+Notes (Seperate Tab which have the same Notes Functionality in Lead)
+Table: Parts Used
+           Fields: Part (Link, Item), Quantity (Float),Rate, Amount (Currency, read-only, computed)
+
+          Make Cost auto-calculate as the sum of all Amount in Parts Used.

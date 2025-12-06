@@ -1,0 +1,11 @@
+Columns: Machine, Maintenance Date, Technician, Status, Total Cost,Consolidated (Check Box)
+Filters: Machine, Technician, Date Range
+When Consolidated = True:
+           Group all maintenance entries by Machine
+           Sum Total Cost per machine
+           Display one row per machine with aggregated totals
+When Consolidated = False:
+           Show individual maintenance entries (default report view)
+           Highlight rows based on Status:
+
+           Overdue → Red background ,Scheduled → Yellow,Completed → Green

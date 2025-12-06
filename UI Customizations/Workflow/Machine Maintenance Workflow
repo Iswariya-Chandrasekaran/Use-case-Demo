@@ -1,0 +1,8 @@
+Machine Maintenance Workflow
+
+Workflow states: Draft → Scheduled → Completed → Closed
+Transition rules:
+           Draft → Scheduled : Only Technician role
+           Scheduled → Completed : Only Technician
+           Completed → Closed : Manager approval
+           On transition to Closed, send email to the Operations manager.

@@ -1,0 +1,12 @@
+Create a dashboard for Machine Maintenance:
+Number of completed maintenance tasks
+
+Number of overdue maintenance tasks
+
+Total maintenance cost this month
+
+Add charts:
+
+Pie chart for Status distribution (Scheduled, Completed, Overdue)
+
+Maintenance cost trend by month
