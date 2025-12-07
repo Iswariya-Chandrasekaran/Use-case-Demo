@@ -7,10 +7,12 @@ frappe.ui.form.on("Machine Maintenance", {
         if (frm.is_new() && !frm.doc.maintenance_date) {
             frm.set_value('maintenance_date', frappe.datetime.get_today());
         }
+        toggle_notes(frm);
     },
 
     // Triggered when the form is refreshed
     refresh: function(frm) {
+        toggle_notes(frm);
         update_overdue(frm);
         const user_is_technician = frappe.user_roles.includes("Technician");
         const maintenance_completed = frm.doc.workflow_state === "Completed";
@@ -20,7 +22,13 @@ frappe.ui.form.on("Machine Maintenance", {
 
         // Show "Maintenance Completed" button only to Technicians
         // and only if maintenance is not yet completed and the document is saved
-        if (user_is_technician && !maintenance_completed && frm.doc.docstatus === 0 && !frm.is_new() && frm.doc.status == "Scheduled") {
+        if (
+            user_is_technician &&
+            !maintenance_completed &&
+            frm.doc.docstatus === 0 &&
+            !frm.is_new() &&
+            frm.doc.status === "Scheduled"
+           ) {
             frm.add_custom_button("Maintenance Completed", () => {
                 frm.trigger("complete_maintenance_action");
             });
@@ -40,15 +48,6 @@ frappe.ui.form.on("Machine Maintenance", {
 
         // Save the document to persist changes
         frm.save();
-    },
-
-    // Triggered after the document is saved
-    after_save: function(frm) {
-        // Ensure completion_date is set if workflow was completed externally
-        if (frm.doc.workflow_state === "Completed" && !frm.doc.completion_date) {
-            frm.set_value("completion_date", frappe.datetime.nowdate());
-            frm.save();
-        }
     },
     maintenance_date: function(frm) {
        update_overdue(frm);
@@ -107,6 +106,9 @@ function fetch_part_price(frm, cdt, cdn) {
             calculate_row_amount(frm, cdt, cdn);
         }
     });
+}
+function toggle_notes(frm) {
+    frm.set_df_property('notes', 'hidden', frm.doc.status === "Scheduled");
 }
 function update_overdue(frm) {
     if (!frm.doc.maintenance_date || frm.doc.status === "Completed") return;
