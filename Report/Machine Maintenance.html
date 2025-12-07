@@ -1,0 +1,104 @@
+<div style="margin: 20px; font-family: Arial;">
+
+    <!-- Report Title -->
+    <h2 style="text-align:center; margin-bottom: 10px;">
+        Machine Maintenance Report
+    </h2>
+
+    <!-- Filters Summary -->
+    <div style="font-size: 12px; margin-bottom: 15px;">
+        {% if filters.machine %}
+            <b>Machine:</b> {{ filters.machine }} &nbsp;&nbsp;
+        {% endif %}
+        {% if filters.technician %}
+            <b>Technician:</b> {{ filters.technician }} &nbsp;&nbsp;
+        {% endif %}
+        {% if filters.from_date %}
+            <b>From:</b> {{ filters.from_date }} &nbsp;&nbsp;
+        {% endif %}
+        {% if filters.to_date %}
+            <b>To:</b> {{ filters.to_date }}
+        {% endif %}
+    </div>
+
+    <!-- NORMAL VIEW (not consolidated) -->
+    {% if not filters.consolidated %}
+        {% set groups = {} %}
+
+        {% for row in data %}
+            {% set machine = row.machine_name %}
+            {% if not groups[machine] %}
+                {% set _ = groups.update({machine: []}) %}
+            {% endif %}
+            {% set _ = groups[machine].append(row) %}
+        {% endfor %}
+
+        {% for machine, rows in groups.items() %}
+
+            <!-- Machine Header -->
+            <h3 style="background:#f5f5f5; padding:8px; border-left:4px solid #333;">
+                {{ machine }}
+            </h3>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                <thead>
+                    <tr style="background:#ddd;">
+                        <th style="border:1px solid #ccc; padding:5px;">Maintenance Date</th>
+                        <th style="border:1px solid #ccc; padding:5px;">Technician</th>
+                        <th style="border:1px solid #ccc; padding:5px;">Status</th>
+                        <th style="border:1px solid #ccc; padding:5px;">Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total = 0 %}
+                    {% for r in rows %}
+                        <tr>
+                            <td style="border:1px solid #ccc; padding:5px;">{{ r.maintenance_date }}</td>
+                            <td style="border:1px solid #ccc; padding:5px;">{{ r.technician }}</td>
+                            <td style="border:1px solid #ccc; padding:5px;">{{ r.status }}</td>
+                            <td style="border:1px solid #ccc; padding:5px; text-align:right;">
+                                {{ r.total_cost }}
+                            </td>
+                        </tr>
+                        {% set total = total + (r.total_cost or 0) %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Machine Total -->
+            <div style="text-align:right; font-size:14px; font-weight:bold; margin-bottom:20px;">
+                Total for {{ machine }}: {{ total }}
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+    <!-- CONSOLIDATED VIEW -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="background:#ddd;">
+                <th style="border:1px solid #ccc; padding:5px;">Machine</th>
+                <th style="border:1px solid #ccc; padding:5px;">Total Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set grand_total = 0 %}
+            {% for row in data %}
+                <tr>
+                    <td style="border:1px solid #ccc; padding:5px;">{{ row.machine_name }}</td>
+                    <td style="border:1px solid #ccc; padding:5px; text-align:right;">
+                        {{ row.total_cost }}
+                    </td>
+                </tr>
+                {% set grand_total = grand_total + (row.total_cost or 0) %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3 style="text-align:right; margin-top: 10px;">
+        Grand Total: {{ grand_total }}
+    </h3>
+
+    {% endif %}
+</div>
